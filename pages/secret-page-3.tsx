@@ -17,6 +17,7 @@ interface User {
 export default function SecretPage3() {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [friendEmail, setFriendEmail] = useState<string>("");
+
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
@@ -40,7 +41,7 @@ export default function SecretPage3() {
 
       console.log("Fetching friend requests for:", user.id);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("friends")
         .select("*")
         .eq("friend_id", user.id)
@@ -49,8 +50,9 @@ export default function SecretPage3() {
       if (error) {
         console.error("Error fetching friend requests:", error.message);
       } else {
-        console.log("Fetched friend requests:", data);
-        setFriendRequests(data);
+        console.log("Fetched friend requests.");
+        // Assuming no need for the data, you can skip setting state here
+        // setFriendRequests(data);  // You can remove this line if not needed
       }
     };
 
@@ -104,15 +106,13 @@ export default function SecretPage3() {
       return;
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("friends")
-      .insert([
-        {
-          user_id: user.id,
-          friend_id: friendData.id,
-          status: "pending",
-        },
-      ])
+      .insert([{
+        user_id: user.id,
+        friend_id: friendData.id,
+        status: "pending",
+      }])
       .select();
 
     if (error) {
