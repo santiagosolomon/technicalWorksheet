@@ -31,7 +31,7 @@ export default function SecretPage2() {
   return (
     <div className="flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold">Secret Page 2</h1>
-      <textarea className="border p-2 w-full mt-2" onChange={(e) => setMessage(e.target.value)} />
+      <textarea className="border p-2 w-72 mt-2" onChange={(e) => setMessage(e.target.value)} />
       <button onClick={saveMessage} className="bg-blue-500 text-white p-2 mt-2">
         {loading ? "Saving..." : "Save Message"}
       </button>

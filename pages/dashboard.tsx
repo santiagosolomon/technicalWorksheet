@@ -1,6 +1,7 @@
 "use client";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Dashboard() {
@@ -15,7 +16,7 @@ export default function Dashboard() {
   const deleteAccount = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase.auth.getUser(); // Get current user
+    const { data, error } = await supabase.auth.getUser();
     if (error || !data?.user) {
       console.error("Error fetching user:", error?.message);
       setLoading(false);
@@ -32,7 +33,7 @@ export default function Dashboard() {
 
     if (response.ok) {
       alert("Account deleted successfully.");
-      await supabase.auth.signOut(); // Log out after deletion
+      await supabase.auth.signOut();
       window.location.href = "/";
     } else {
       alert(`Error: ${result.error}`);
@@ -40,25 +41,27 @@ export default function Dashboard() {
 
     setLoading(false);
   };
+
   return (
     <div className="flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
       <div className="mt-4">
-        <a href="/secret-page-1" className="text-blue-500">
+        <Link href="/secret-page-1" className="text-blue-500">
           Go to Secret Page 1
-        </a>
+        </Link>
       </div>
       <div className="mt-4">
-        <a href="/secret-page-2" className="text-blue-500">
+        <Link href="/secret-page-2" className="text-blue-500">
           Go to Secret Page 2
-        </a>
+        </Link>
       </div>
       <div className="mt-4">
-        <a href="/secret-page-3" className="text-blue-500">
+        <Link href="/secret-page-3" className="text-blue-500">
           Go to Secret Page 3
-        </a>
+        </Link>
       </div>
+
       <div className="flex gap-4 text-sm mt-4">
         <button onClick={handleLogout} className="bg-black text-white p-2">
           Logout
