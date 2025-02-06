@@ -22,6 +22,7 @@ export default function Dashboard() {
       setLoading(false);
       return;
     }
+    
 
     const response = await fetch("/api/deleteUser", {
       method: "DELETE",
