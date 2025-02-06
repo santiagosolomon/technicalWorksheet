@@ -51,8 +51,7 @@ export default function SecretPage3() {
         console.error("Error fetching friend requests:", error.message);
       } else {
         console.log("Fetched friend requests.");
-        // Assuming no need for the data, you can skip setting state here
-        // setFriendRequests(data);  // You can remove this line if not needed
+        
       }
     };
 

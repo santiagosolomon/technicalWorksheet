@@ -18,15 +18,15 @@ export default function SecretPage1() {
   const router = useRouter();
   const [user, setUser] = useState<UserType | null>(null);
   const [isFriend, setIsFriend] = useState(false);
-  const ownerId = "OWNER_USER_ID"; // Replace with actual owner ID
+  const ownerId = "OWNER_USER_ID"; 
 
   useEffect(() => {
-    let isMounted = true; // Prevent state updates if component unmounts
+    let isMounted = true; 
 
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
-        router.push("/login"); // Redirect if not logged in
+        router.push("/login"); 
         return;
       }
 
@@ -44,7 +44,7 @@ export default function SecretPage1() {
         return;
       }
 
-      // Check if the logged-in user is friends with the owner
+    
       const isFriend = (friends as FriendType[]).some(
         (f) =>
           (f.user_id === data.user.id && f.friend_id === ownerId) ||

@@ -37,7 +37,7 @@ export default function SecretPage2() {
       </button>
       <button onClick={handleLogout} className="bg-red-500 text-white p-2 mt-4">Logout</button>
       <button
-        onClick={() => router.push("/dashboard")} // ✅ Navigate back
+        onClick={() => router.push("/dashboard")} // 
         className="bg-gray-500 text-white p-2 mt-4 rounded"
       >
         Back 

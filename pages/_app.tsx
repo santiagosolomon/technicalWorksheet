@@ -1,4 +1,4 @@
-import "../styles/globals.css"; // Relative path instead of @
+import "../styles/globals.css"; 
 import type { AppProps } from "next/app";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
