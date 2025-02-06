@@ -1,14 +1,25 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation"; // ✅ Import useRouter
+import { useRouter } from "next/navigation";
+
+interface FriendRequest {
+  id: string;
+  user_id: string;
+  friend_id: string;
+  status: string;
+}
+
+interface User {
+  id: string;
+  email?: string;  // Making email optional to match Supabase's User type
+}
 
 export default function SecretPage3() {
-  const [friendRequests, setFriendRequests] = useState<any[]>([]); // Declare friend requests state
-  const [friendEmail, setFriendEmail] = useState("");
-  const [user, setUser] = useState<any>(null);
-  const router = useRouter(); // ✅ Initialize router
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
+  const [friendEmail, setFriendEmail] = useState<string>("");
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
-  // Fetch logged-in user
   useEffect(() => {
     const getUser = async () => {
       const { data, error } = await supabase.auth.getUser();
@@ -16,48 +27,37 @@ export default function SecretPage3() {
       if (error) {
         console.error("Error fetching user:", error.message);
       } else {
-        setUser(data.user);
+        setUser(data.user);  // Setting user with Supabase user type
       }
     };
 
     getUser();
   }, []);
 
-  // Fetch pending friend requests (Only requests where logged-in user is the recipient)
   useEffect(() => {
     const fetchFriendRequests = async () => {
       if (!user?.id) return;
 
       console.log("Fetching friend requests for:", user.id);
 
-      // Debugging: Fetch everything first (to see if data is inserted)
-      const { data: allData, error: allError } = await supabase
-        .from("friends")
-        .select("*");
-      console.log("All friend requests in DB:", allData);
-
-      // Now filter specifically for the logged-in user as recipient
       const { data, error } = await supabase
         .from("friends")
         .select("*")
-        .eq("friend_id", user.id) // ✅ Ensure filtering correctly
+        .eq("friend_id", user.id)
         .eq("status", "pending");
 
       if (error) {
         console.error("Error fetching friend requests:", error.message);
       } else {
         console.log("Fetched friend requests:", data);
-        setFriendRequests(data); // ✅ Update state
+        setFriendRequests(data);
       }
     };
 
     if (user) fetchFriendRequests();
   }, [user]);
 
-  // Accept friend request
   const acceptFriendRequest = async (requestId: string) => {
-    console.log("Accepting friend request with ID:", requestId); // Debugging log
-
     if (!requestId) {
       alert("Invalid request ID");
       return;
@@ -70,24 +70,22 @@ export default function SecretPage3() {
 
     const { error } = await supabase
       .from("friends")
-      .update({ status: "accepted" }) // Mark as accepted
-      .eq("id", requestId) // Match the request by ID
-      .eq("friend_id", user.id); // Ensure that the request is for the logged-in user
+      .update({ status: "accepted" })
+      .eq("id", requestId)
+      .eq("friend_id", user.id);
 
     if (error) {
       console.error("Error accepting friend request:", error.message);
       alert("Error accepting friend request: " + error.message);
     } else {
       alert("Friend request accepted!");
-      setFriendRequests((prev) => prev.filter((req) => req.id !== requestId)); // Remove from state/UI
+      setFriendRequests((prev) => prev.filter((req) => req.id !== requestId));
     }
   };
 
-  // Send friend request
   const sendFriendRequest = async () => {
     if (!user) return alert("User not logged in.");
 
-    console.log("Fetching users...");
     const response = await fetch("/api/fetch-users");
     const usersData = await response.json();
 
@@ -97,39 +95,32 @@ export default function SecretPage3() {
       return;
     }
 
-    console.log("Users fetched:", usersData.users); // ✅ Check if users are fetched correctly
-
     const friendData = usersData.users.find(
-      (u: { id: string; email: string }) => u.email === friendEmail
+      (u: User) => u.email === friendEmail
     );
 
     if (!friendData) {
       alert("User not found.");
-      console.error("Friend not found for email:", friendEmail);
       return;
     }
 
-    console.log(`Sending friend request from ${user.id} to ${friendData.id}`); // ✅ Debug log
-
-    // Insert into Supabase
     const { data, error } = await supabase
       .from("friends")
       .insert([
         {
-          user_id: user.id, // ✅ The sender
-          friend_id: friendData.id, // ✅ The recipient
-          status: "pending", // ✅ Mark as pending
+          user_id: user.id,
+          friend_id: friendData.id,
+          status: "pending",
         },
       ])
-      .select(); // ✅ Retrieve inserted data for debugging
+      .select();
 
     if (error) {
       console.error("Error sending friend request:", error.message);
       alert(error.message);
     } else {
-      console.log("Friend request inserted:", data); // ✅ Log the inserted data
       alert("Friend request sent!");
-      setFriendEmail(""); // Reset input
+      setFriendEmail("");
     }
   };
 
@@ -150,7 +141,7 @@ export default function SecretPage3() {
           Send Friend Request
         </button>
         <button
-          onClick={() => router.push("/dashboard")} // ✅ Navigate back
+          onClick={() => router.push("/dashboard")}
           className="bg-gray-500 text-white p-2  rounded"
         >
           Back
@@ -160,21 +151,17 @@ export default function SecretPage3() {
       <h2 className="mt-4">Pending Friend Requests</h2>
       <ul>
         {friendRequests.length === 0 && <p>No pending requests.</p>}
-        {friendRequests.map((request) => {
-          console.log("Rendering request:", request); // Debugging log
-          return (
-            <li key={request.id}>
-              Friend request from {request.user_id}{" "}
-              {/* Ensure this displays correctly */}
-              <button
-                onClick={() => acceptFriendRequest(request.id)}
-                className="ml-2 bg-blue-500 text-white p-1"
-              >
-                Accept
-              </button>
-            </li>
-          );
-        })}
+        {friendRequests.map((request) => (
+          <li key={request.id}>
+            Friend request from {request.user_id}
+            <button
+              onClick={() => acceptFriendRequest(request.id)}
+              className="ml-2 bg-blue-500 text-white p-1"
+            >
+              Accept
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
